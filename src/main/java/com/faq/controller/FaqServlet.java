@@ -46,7 +46,7 @@ public class FaqServlet extends HttpServlet {
 			request.setAttribute("faqVO", faqVO); // 存FAQ的資料
 			String url = "/backend/faq/update_faq_input.jsp";
 			RequestDispatcher successView = request.getRequestDispatcher(url);
-			successView.forward(request, response);// // 跳轉修改頁面update_faq_input.jsp
+			successView.forward(request, response); // 跳轉修改頁面update_faq_input.jsp
 //				System.out.print(faqVO.getFaqId()); updateOk
 
 		}
@@ -77,59 +77,60 @@ public class FaqServlet extends HttpServlet {
 
 		// ------ 查詢單筆 FAQ -------
 		if ("getOne_For_Display".equals(action)) {
-			// 用來存儲錯誤訊息的集合
-			List<String> errorMsgs = new LinkedList<String>();
-			// 將錯誤訊息存入 request
-			request.setAttribute("errorMsgs", errorMsgs);
+		    List<String> errorMsgs = new LinkedList<String>();
+		    request.setAttribute("errorMsgs", errorMsgs);
 
-			try {
-				// 取得要查詢的 FAQ ID
-				String faqId = request.getParameter("faqId");
+		    try {
+		        // 取得要查詢的 FAQ ID
+		        String faqId = request.getParameter("faqId");
 
-				// 驗證 FAQ ID 是否有效
-				if (faqId == null || faqId.trim().isEmpty()) {
-					errorMsgs.add("請輸入常見問題編號");
-				}
+		        // 驗證 FAQ ID 格式是否正確
+		        if (faqId == null || (faqId = faqId.trim()).isEmpty()) {
+		            errorMsgs.add("請輸入常見問題編號");
+		        } 
+		        // 增加 FAQ ID 格式驗證
+		        else if (!faqId.matches("^FAQ\\d{2}$")) {
+		            errorMsgs.add("常見問題編號格式不正確。請使用 FAQXX 格式，如 FAQ01");
+		        }
 
-				// 如果有錯誤，轉回原頁面
-				if (!errorMsgs.isEmpty()) {
-					RequestDispatcher failureView = request.getRequestDispatcher("/backend/faq/select_page.jsp");
-					failureView.forward(request, response);
-					return;
-				}
+		        // 如果有錯誤，轉回原頁面
+		        if (!errorMsgs.isEmpty()) {
+		            RequestDispatcher failureView = request.getRequestDispatcher("/backend/faq/faq_select_page.jsp");
+		            failureView.forward(request, response);
+		            return;
+		        }
 
-				// 執行查詢
-				FaqService faqSvc = new FaqService();
-				FaqVO faqVO = faqSvc.getOneFaq(faqId);
+		        // 執行查詢
+		        FaqService faqSvc = new FaqService();
+		        FaqVO faqVO = faqSvc.getOneFaq(faqId);
 
-				// 如果找不到該 FAQ
-				if (faqVO == null) {
-					errorMsgs.add("查無此常見問題");
-				}
+		        // 如果找不到該 FAQ
+		        if (faqVO == null) {
+		            errorMsgs.add("查無此常見問題");
+		        }
 
-				// 如果有錯誤，轉回原頁面
-				if (!errorMsgs.isEmpty()) {
-					RequestDispatcher failureView = request.getRequestDispatcher("/backend/faq/select_page.jsp");
-					failureView.forward(request, response);
-					return;
-				}
+		        // 如果有錯誤，轉回原頁面
+		        if (!errorMsgs.isEmpty()) {
+		            RequestDispatcher failureView = request.getRequestDispatcher("/backend/faq/faq_select_page.jsp");
+		            failureView.forward(request, response);
+		            return;
+		        }
 
-				// 查詢成功，將結果存入 request
-				request.setAttribute("faqVO", faqVO);
+		        // 查詢成功，將結果存入 request
+		        request.setAttribute("faqVO", faqVO);
 
-				// 轉發到顯示單一常見問題的頁面
-				String url = "/backend/faq/listOneFaq.jsp";
-				RequestDispatcher successView = request.getRequestDispatcher(url);
-				successView.forward(request, response);
+		        // 轉發到顯示單一常見問題的頁面
+		        String url = "/backend/faq/listOneFaq.jsp";
+		        RequestDispatcher successView = request.getRequestDispatcher(url);
+		        successView.forward(request, response);
 
-			} catch (Exception e) {
-				// 發生例外錯誤時
-				errorMsgs.add("處理查詢時發生錯誤: " + e.getMessage());
-				RequestDispatcher failureView = request.getRequestDispatcher("/backend/faq/select_page.jsp");
-				failureView.forward(request, response);
-			}
+		    } catch (Exception e) {
+		        // 發生例外錯誤時
+		        errorMsgs.add("處理查詢時發生錯誤: " + e.getMessage());
+		        RequestDispatcher failureView = request.getRequestDispatcher("/backend/faq/faq_select_page.jsp");
+		        failureView.forward(request, response);
+		    }
 		}
-
 		// ------ 新增FAQ的邏輯 ------
 		if ("insert".equals(action)) {
 			List<String> errorMsgs = new LinkedList<String>();
@@ -155,7 +156,7 @@ public class FaqServlet extends HttpServlet {
 					errorMsgs.add("問題回答不能為空");
 				}
 
-				// 如果有錯誤，將 faqVO 存回 request 並轉回新增頁面
+				// 如果有錯誤，將faqVO存回request並轉回addFaq
 				if (!errorMsgs.isEmpty()) {
 					request.setAttribute("faqVO", faqVO);
 					RequestDispatcher failureView = request.getRequestDispatcher("/backend/faq/addFaq.jsp");
@@ -163,15 +164,15 @@ public class FaqServlet extends HttpServlet {
 					return;
 				}
 
-				// 執行新增操作
+				// 執行新增操作(呼叫Service)
 				FaqService faqSvc = new FaqService();
-				faqVO = faqSvc.addFaq(adminId, faqAsk, faqAnswer, 1); // 預設狀態為1(上線)
+				faqVO = faqSvc.addFaq(adminId, faqAsk, faqAnswer, 1); // 預設狀態為1(已上線)
 
 				// 查詢所有 FAQ 列表並存入 request
 				List<FaqVO> faqList = faqSvc.getAll();
 				request.setAttribute("faqList", faqList);
 
-				// 新增成功後導回列表頁面
+				// 新增成功後導回常見問題首頁listAllFaq
 				String url = "/backend/faq/listAllFaq.jsp";
 				RequestDispatcher successView = request.getRequestDispatcher(url);
 				successView.forward(request, response);

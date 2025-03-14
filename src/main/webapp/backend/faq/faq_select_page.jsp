@@ -59,27 +59,29 @@ h3 {
 <h3>資料查詢:</h3>
 
 <%-- 錯誤表列 --%>
-<%-- <c:if test="${not empty errorMsgs}"> --%>
-<!-- 	<font style="color:red">請修正以下錯誤:</font> -->
-<!-- 	<ul> -->
-<%-- 		<c:forEach var="message" items="${errorMsgs}"> --%>
-<%-- 			<li style="color:red">${message.value}</li> --%>
-<%-- 		</c:forEach> --%>
-<!-- 	</ul> -->
-<%-- </c:if> --%>
+<c:if test="${not empty errorMsgs}">
+    <font style="color:red">請修正以下錯誤:</font>
+    <ul>
+        <c:forEach var="message" items="${errorMsgs}">
+            <li style="color:red">${message}</li>
+        </c:forEach>
+    </ul>
+</c:if>
 
 <ul>
-  <li><a href='listAllFaq.jsp'>List</a> all Faqs.  <br><br></li>
-  
-  
-  <li>
-    <form method="post" action="faq.do" >
-        <label for="faqId"><b>輸入常見問題編號 (如FAQ01):</b></label>
-        <input type="text" id="faqId" name="faqId" value="${param.faqId}"><font color=red>${errorMsgs.faqId}</font>
-        <input type="hidden" name="action" value="getOne_For_Display">
-        <input type="submit" value="送出">
-    </form>
-  </li>
+    <li><a href='listAllFaq.jsp'>List all Faqs.</a><br><br></li>
+
+    <li>
+        <form method="post" action="faq.do">
+            <label for="faqId"><b>輸入常見問題編號 (如FAQ01):</b></label>
+            <input type="text" id="faqId" name="faqId"
+                   value="${param.faqId}"
+                   placeholder="請輸入FAQ編號">
+            <input type="hidden" name="action" value="getOne_For_Display">
+            <input type="submit" value="送出">
+        </form>
+    </li>
+</ul>
 
   <jsp:useBean id="faqSvc" scope="page" class="com.faq.model.FaqService" />
    
