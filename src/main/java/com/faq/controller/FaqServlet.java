@@ -27,9 +27,9 @@ public class FaqServlet extends HttpServlet {
 		String action = request.getParameter("action"); // 接收action參數
 //			System.out.print(action); 
 
-		// -------刪除---------
+		// -------下架(刪除)---------
 		if ("delete".equals(action)) {
-			String str = request.getParameter("faqId"); //從請求中獲取要刪除的faqId
+			String str = request.getParameter("faqId"); //從請求中獲取要下架的faqId
 			FaqService faqSvc = new FaqService();
 			faqSvc.deleteFaq(str); // 呼叫FaqService的deleteFaq方法
 			String url = "/backend/faq/listAllFaq.jsp";
